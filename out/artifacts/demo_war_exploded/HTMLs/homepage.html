@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Information Retrieval Lab01</title>
+    <style type="text/css">
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        body{
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(at center,#00eff0, #2783bf);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        div.title{
+            height: 100px;
+        }
+        div.search{
+            height: 40px;
+            width: 500px;
+        }
+        div.search form{
+            width: 100%;
+            height: 100%;
+        }
+        div.search form input:nth-child(2){
+            width: 400px;
+            height: 100%;
+            font-size: 16px;
+            text-indent: 40px;
+            border: none;
+            float: left;
+        }
+        div.search form input:nth-child(3){
+            width: 100px;
+            height: 100%;
+            font-size: 16px;
+            letter-spacing: 5px;
+            border: none;
+        }
+        div.search form img{
+            position: absolute;
+            left: 50vw;
+            transform: translateX(-250px);
+            margin-top: 10px;
+            margin-left: 10px;
+            height: 20px;
+        }
+        div.scroll-container{
+            width: 1000px;
+            height: 500px;
+            overflow: auto;
+            display: none;
+        }
+        div.scroll-content{
+            width:1000px;
+            height:1000px;
+        }
+        input.submit {
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+            font-family: 微软雅黑;
+            font-style: normal;
+        }
+        input.submit:hover {
+            box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+        }
+        .submit {background-color: #008CBA;}
+        input.Input {
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+        }
+    </style>
+</head>
+<body>
+<div class="title">
+    <h1>古诗词检索 Lab01</h1>
+</div>
+
+<div class="search">
+    <form id="booleanForm" action="/Info_Retrieval/BooleanRetrievalServlet" method="post">
+        <img src="./search_icon.jpg" alt="">
+        <input class="Input" type="Input" name="boolSearchInput" placeholder="布尔模型搜索">
+        <input class="submit" type="submit" id="booleanSearchBtn", value="搜索">
+    </form>
+    <form id="vectorForm" action="/Info_Retrieval/VectorRetrievalServlet" method="post">
+        <img src="./search_icon.jpg" alt="">
+        <input class="Input" type="Input" name="vectorSearchInput" placeholder="向量模型搜索">
+        <input class="submit" type="submit" id="vectorSearchBtn", value="搜索">
+    </form>
+</div>
+
+</body>
+</html>
