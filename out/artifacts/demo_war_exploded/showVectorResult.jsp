@@ -89,7 +89,7 @@
 </head>
 <body>
 <div class="container">
-    <h3 style="text-align: center">古诗词检索结果</h3>
+    <h3 style="text-align: center">古诗词向量模型检索结果</h3>
     <table border="1" class="pure-table pure-table-bordered">
         <thead class="success">
         <th>标题</th>

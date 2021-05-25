@@ -5,8 +5,6 @@ import java.util.*;
 
 import Retrieval.core.dao.InfoDAO;
 
-;
-
 class DocAnsComparatorByTi implements Comparator<BooleanDocAns>{
     @Override
     public int compare(BooleanDocAns o1, BooleanDocAns o2) {
@@ -49,6 +47,7 @@ public class RetrievalCore {
     private BooleanDictionary booleanDictionary_author;
     private VectorDocCollection docCollection;
     private InfoDAO dao;
+    private final int k=5;
 
     // init functions
     public RetrievalCore(){
@@ -119,25 +118,27 @@ public class RetrievalCore {
         for(int i=0; i<words.length(); ++i){
             int j=0;
             // get candidates
-            for(Iterator iter=booleanDictionary.getTerm(words.charAt(i)).docRanking.descendingIterator();
+            for(Iterator iter=booleanDictionary.getTerm(words.charAt(i)).
+                    docRanking.descendingIterator();
                 iter.hasNext();){
                 docCandidate.add((BooleanDocNode) iter.next());
                 j++;
-                if(j>=5){break;}
+                if(j>=k){break;}
             }
             // init query
             query.addCountByChar(words.charAt(i));
         }
 
-        PriorityQueue<VectorDocAns> heap=new PriorityQueue<>(5, new DocAnsComparatorBySimilarity());
+        PriorityQueue<VectorDocAns> heap=new PriorityQueue<>(k, new DocAnsComparatorBySimilarity());
         for(BooleanDocNode en: docCandidate){
             VectorDocAns docAns=new VectorDocAns();
             docAns.docNo= en.docNo;
-//            docAns.setSimilarity(docCollection.getSimilarity(query, en.docNo));
+            // get idf info for each term
             HashMap<Character, Double> idfMap=new HashMap<>();
             for(Character c: query.getTermList().keySet()){
                 idfMap.put(c, booleanDictionary.getTerm(c).idf);
             }
+            // set and calculate similarity for query and each doc
             docAns.setSimilarity(docCollection.getSimilarityUsingIdf(query, en.docNo, idfMap));
             heap.add(docAns);
         }
