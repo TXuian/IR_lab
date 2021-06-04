@@ -4,8 +4,10 @@ import java.util.Map;
 
 public class VectorDocVec {
     private HashMap<Character, Double> termList;
+    public HashMap<Character, Integer> termCountList;
 
     public VectorDocVec(){
+        termCountList=new HashMap<>();
         termList=new HashMap<>();
     }
 
@@ -18,8 +20,10 @@ public class VectorDocVec {
     public void addCountByChar(Character c){
         if(termList.containsKey(c)){
             termList.put(c, termList.get(c)+1);
+            termCountList.put(c, termCountList.get(c)+1);
         }else{
             termList.put(c, 1.0);
+            termCountList.put(c, 1);
         }
     }
 

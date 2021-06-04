@@ -9,6 +9,10 @@ public class VectorDocCollection {
         docMap=new HashMap<>();
     }
 
+    public HashMap<Integer, VectorDocVec> getDocMap(){
+        return this.docMap;
+    }
+
     public void addTerm(Integer docId, Character cTerm){
         if(!docMap.containsKey(docId)){
             docMap.put(docId, new VectorDocVec());

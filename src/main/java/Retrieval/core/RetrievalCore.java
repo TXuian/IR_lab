@@ -41,11 +41,26 @@ class DocAnsComparatorBySimilarity implements Comparator<VectorDocAns>{
     }
 }
 
+class DocAnsComparatorByBIMProb implements Comparator<BIMDocAns>{
+
+    @Override
+    public int compare(BIMDocAns o1, BIMDocAns o2) {
+        if(o1.getRSV()==o2.getRSV()){
+            if(o1.getDocNo()==o2.getDocNo()){return 0;}
+            else{return o1.getDocNo()>o2.getDocNo()?1:-1;}
+        }else{
+            return o1.getRSV()>o2.getRSV()?1:-1;
+        }
+    }
+}
+
 public class RetrievalCore {
     private BooleanDictionary booleanDictionary;
     private BooleanDictionary booleanDictionary_head;
     private BooleanDictionary booleanDictionary_author;
     private VectorDocCollection docCollection;
+    private BIMTermProbList termProbList;
+//    private
     private InfoDAO dao;
     private final int k=5;
 
@@ -60,8 +75,10 @@ public class RetrievalCore {
         booleanDictionary_head =new BooleanDictionary();
         booleanDictionary_author =new BooleanDictionary();
         docCollection = new VectorDocCollection();
+        termProbList= new BIMTermProbList();
         generateDictionaries();
         generateDocCollection();
+        generateBIMTermList();
     }
 
     public void generateDocCollection(){
@@ -98,6 +115,47 @@ public class RetrievalCore {
         booleanDictionary.completeUpdate();
         booleanDictionary_author.completeUpdate();
         booleanDictionary_head.completeUpdate();
+    }
+
+    public void generateBIMTermList(){
+        // for every term
+        for(Character term: booleanDictionary.dictionary.keySet()){
+            BIMTermProb termProb=new BIMTermProb();
+            termProb.setTerm(term);
+            // get relevant set and unRelevant set
+            TreeSet<Integer> relevantSet= new TreeSet(); //relevant set
+            relevantSet.addAll(booleanDictionary.getTerm(term).docList.keySet());
+            TreeSet<Integer> unRelevantSet= new TreeSet<>(); //unRelevant set
+            unRelevantSet.addAll(docCollection.getDocMap().keySet());
+            unRelevantSet.removeAll(relevantSet);
+            // count prob-s
+            double sumOfTermInRelevant=0, sumOfWordsInRelevant=0;
+            double sumOfTermInUnRelevant=0, sumOfWordsInUnRelevant=0;
+            countTermInSet(term, relevantSet, sumOfTermInRelevant, sumOfWordsInRelevant);
+            countTermInSet(term, unRelevantSet, sumOfTermInUnRelevant, sumOfWordsInUnRelevant);
+            // prob. of occurrence in relevant documents for query
+            termProb.setPi(sumOfTermInRelevant/sumOfWordsInRelevant);
+            // prob. of occurrence in non-relevant documents for query
+            termProb.setRi(sumOfTermInUnRelevant/sumOfWordsInUnRelevant);
+            termProbList.addTermProb(termProb);
+        }
+    }
+
+    private void countTermInSet(Character term, TreeSet<Integer> unRelevantSet, double sumOfTermInSet, double sumOfWordsInSet) {
+        for(Iterator<Integer> itr = unRelevantSet.descendingIterator(); itr.hasNext();){
+            // for every document in unRelevant set
+            // get size of document
+            Integer unRelevantDocNo=itr.next();
+            for(Iterator inner_itr=docCollection.getDocMap().get(unRelevantDocNo).termCountList.entrySet().iterator();
+                inner_itr.hasNext();){
+                // for terms in doc
+                Map.Entry<Character, Integer> countOfTermInDoc = (Map.Entry<Character, Integer>) inner_itr.next();
+                sumOfWordsInSet+=countOfTermInDoc.getValue();
+                if(term==countOfTermInDoc.getKey()){
+                    sumOfTermInSet+=countOfTermInDoc.getValue();
+                }
+            }
+        }
     }
 
     private void handleSentence(int docNo, String sentence, BooleanDictionary d){
@@ -201,6 +259,56 @@ public class RetrievalCore {
         }
 
         return ts_ans;
+    }
+
+    public TreeSet<BIMDocAns> BIMSearch(String words){
+        if(words.length()==0){return new TreeSet<BIMDocAns>();}
+
+        // generate query set
+        HashSet<Character> querySet= new HashSet<>();
+        for(int i=0 ;i<words.length(); ++i){
+            querySet.add(words.charAt(i));
+        }
+
+        // get candidates
+        HashSet<BooleanDocNode> docCandidate=new HashSet<>();
+        // select candidates
+        for(int i=0; i<words.length(); ++i){
+            int j=0;
+            // get candidates
+            for(Iterator iter=booleanDictionary.getTerm(words.charAt(i)).
+                    docRanking.descendingIterator();
+                iter.hasNext();){
+                docCandidate.add((BooleanDocNode) iter.next());
+                j++;
+                if(j>=k){break;}
+            }
+        }
+
+        TreeSet<BIMDocAns> ret=new TreeSet<>(new DocAnsComparatorByBIMProb());
+        for(BooleanDocNode candidate: docCandidate){
+            // for each candidate
+            BIMDocAns docAns= new BIMDocAns();
+            docAns.setDocNo(candidate.docNo);
+            // get doc content
+            DocStruct docStruct=dao.getPoemById(candidate.docNo);
+            double docRSV=0.0;
+            // count RSV for current doc
+            for(int i=0; i<docStruct.content.length(); ++i){
+                // for each term in doc
+                char termInDoc=docStruct.content.charAt(i);
+                BIMTermProb curTermProb=termProbList.getTermProbList().get(termInDoc);
+                if(querySet.contains(termInDoc)){
+                    docRSV+=Math.log(curTermProb.getPi()/
+                            curTermProb.getRi());
+                }else{
+                    docRSV+=Math.log((1-curTermProb.getPi())/(1-curTermProb.getRi()));
+                }
+            }
+            docAns.setRSV(docRSV);
+            ret.add(docAns);
+        }
+        return ret;
     }
 
     public InfoDAO getDAO(){
