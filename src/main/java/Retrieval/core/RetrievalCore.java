@@ -134,9 +134,9 @@ public class RetrievalCore {
             countTermInSet(term, relevantSet, sumOfTermInRelevant, sumOfWordsInRelevant);
             countTermInSet(term, unRelevantSet, sumOfTermInUnRelevant, sumOfWordsInUnRelevant);
             // prob. of occurrence in relevant documents for query
-            termProb.setPi(sumOfTermInRelevant/sumOfWordsInRelevant);
+            termProb.setPi((sumOfTermInRelevant+0.5)/(sumOfWordsInRelevant+1));
             // prob. of occurrence in non-relevant documents for query
-            termProb.setRi(sumOfTermInUnRelevant/sumOfWordsInUnRelevant);
+            termProb.setRi((sumOfTermInUnRelevant+0.5)/(sumOfWordsInUnRelevant+1));
             termProbList.addTermProb(termProb);
         }
     }
