@@ -54,6 +54,19 @@ class DocAnsComparatorByBIMProb implements Comparator<BIMDocAns>{
     }
 }
 
+class DocAnsComparatorByMLEProb implements Comparator<MLEDocAns>{
+
+    @Override
+    public int compare(MLEDocAns o1, MLEDocAns o2) {
+        if(o1.getMLEProb()==o2.getMLEProb()){
+            if(o1.getDocNo()==o2.getDocNo()){return 0;}
+            else{return o1.getDocNo()>o2.getDocNo()?1:-1;}
+        }else{
+            return o1.getMLEProb()>o2.getMLEProb()?1:-1;
+        }
+    }
+}
+
 public class RetrievalCore {
     private BooleanDictionary booleanDictionary;
     private BooleanDictionary booleanDictionary_head;
@@ -63,6 +76,8 @@ public class RetrievalCore {
 //    private
     private InfoDAO dao;
     private final int k=5;
+    private final double V=30;
+    private final Double MLELambda=0.3;
 
     // init functions
     public RetrievalCore(){
@@ -129,20 +144,21 @@ public class RetrievalCore {
             unRelevantSet.addAll(docCollection.getDocMap().keySet());
             unRelevantSet.removeAll(relevantSet);
             // count prob-s
-            double sumOfTermInRelevant=0, sumOfWordsInRelevant=0;
-            double sumOfTermInUnRelevant=0, sumOfWordsInUnRelevant=0;
-            countTermInSet(term, relevantSet, sumOfTermInRelevant, sumOfWordsInRelevant);
-            countTermInSet(term, unRelevantSet, sumOfTermInUnRelevant, sumOfWordsInUnRelevant);
-            // prob. of occurrence in relevant documents for query
-            termProb.setPi((sumOfTermInRelevant+0.5)/(sumOfWordsInRelevant+1));
-            // prob. of occurrence in non-relevant documents for query
-            termProb.setRi((sumOfTermInUnRelevant+0.5)/(sumOfWordsInUnRelevant+1));
+//            // original setting
+//            // prob. of occurrence in relevant documents for query
+//            termProb.setRi(countCiByTermInSet(term, relevantSet));
+//            // prob. of occurrence in non-relevant documents for query
+//            termProb.setRi(countCiByTermInSet(term, unRelevantSet));
+            // type 2
+            termProb.setPi((relevantSet.size()+0.5)/(V+1));
+            termProb.setRi((unRelevantSet.size()+0.5)/(docCollection.getDocMap().size()-V+1));
             termProbList.addTermProb(termProb);
         }
     }
 
-    private void countTermInSet(Character term, TreeSet<Integer> unRelevantSet, double sumOfTermInSet, double sumOfWordsInSet) {
-        for(Iterator<Integer> itr = unRelevantSet.descendingIterator(); itr.hasNext();){
+    private double countCiByTermInSet(Character term, TreeSet<Integer> set) {
+        double sumOfTermInSet=0.0, sumOfWordsInSet=0.0;
+        for(Iterator<Integer> itr = set.descendingIterator(); itr.hasNext();){
             // for every document in unRelevant set
             // get size of document
             Integer unRelevantDocNo=itr.next();
@@ -156,6 +172,7 @@ public class RetrievalCore {
                 }
             }
         }
+        return (sumOfTermInSet+0.5)/(sumOfWordsInSet+1.0);
     }
 
     private void handleSentence(int docNo, String sentence, BooleanDictionary d){
@@ -308,6 +325,45 @@ public class RetrievalCore {
             docAns.setRSV(docRSV);
             ret.add(docAns);
         }
+        return ret;
+    }
+
+    public TreeSet<MLEDocAns> MLESearch(String words){
+        if(words.length()==0){return new TreeSet<MLEDocAns>();}
+
+        TreeSet<MLEDocAns> ret= new TreeSet<>(new DocAnsComparatorByMLEProb());
+
+        // get candidates
+        HashSet<BooleanDocNode> docCandidate=new HashSet<>();
+        // select candidates
+        for(int i=0; i<words.length(); ++i){
+            int j=0;
+            // get candidates
+            for(Iterator iter=booleanDictionary.getTerm(words.charAt(i)).
+                    docRanking.descendingIterator();
+                iter.hasNext();){
+                docCandidate.add((BooleanDocNode) iter.next());
+                j++;
+                if(j>=k){break;}
+            }
+        }
+
+        for(BooleanDocNode docNode: docCandidate){
+            // for each doc
+            MLEDocAns docAns= new MLEDocAns();
+            docAns.setDocNo(docNode.docNo);
+            // count MLE prob
+            double MLEProb=1;
+            char c=' ';
+            for(int i=0; i<words.length(); ++i){
+                c=words.charAt(i);
+                MLEProb*=(MLELambda*docCollection.getDocMap().get(docNode.docNo).getMd(c)+
+                        (1-MLELambda)* booleanDictionary.getMd(c));
+            }
+            docAns.setMLEProb(MLEProb);
+            ret.add(docAns);
+        }
+
         return ret;
     }
 

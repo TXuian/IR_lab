@@ -5,6 +5,7 @@ import java.util.Map;
 public class VectorDocVec {
     private HashMap<Character, Double> termList;
     public HashMap<Character, Integer> termCountList;
+    private int docSize;
 
     public VectorDocVec(){
         termCountList=new HashMap<>();
@@ -25,6 +26,13 @@ public class VectorDocVec {
             termList.put(c, 1.0);
             termCountList.put(c, 1);
         }
+        this.docSize++;
+    }
+
+    public double getMd(Character term){
+        if(!termList.containsKey(term)){return 0;}
+        double Md=((double)termCountList.get(term)/(double)docSize);
+        return Md;
     }
 
     public void normalizeMapType1(){
