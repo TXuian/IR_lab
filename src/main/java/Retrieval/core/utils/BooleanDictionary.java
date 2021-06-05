@@ -26,9 +26,8 @@ public class BooleanDictionary {
         return this.dictionary.containsKey(c);
     }
 
-    public Double getMd(Character c){
-        double Md=(double)termSizeList.get(c)/(double)termSize;
-        return Md;
+    public Double getMc(Character c){
+        return (double)termSizeList.get(c)/(double)termSize;
     }
 
     public void addTerm(int docNo, char c){

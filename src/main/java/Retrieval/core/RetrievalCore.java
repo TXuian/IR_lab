@@ -358,7 +358,7 @@ public class RetrievalCore {
             for(int i=0; i<words.length(); ++i){
                 c=words.charAt(i);
                 MLEProb*=(MLELambda*docCollection.getDocMap().get(docNode.docNo).getMd(c)+
-                        (1-MLELambda)* booleanDictionary.getMd(c));
+                        (1-MLELambda)* booleanDictionary.getMc(c));
             }
             docAns.setMLEProb(MLEProb);
             ret.add(docAns);
