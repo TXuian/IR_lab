@@ -6,40 +6,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <link rel="stylesheet" type="text/css" href="css/default.css">
     <link rel="stylesheet" type="text/css" href="css/search-form.css">
+    <link rel="stylesheet" type="text/css" href="css/button.css">
 </head>
+
+<div class="choose-model">
+    <button type="choseBtn" class="button button-glow button-rounded button-primary-flat button-small" onclick="showmodel('1')" id="bool">布尔模型</button>
+    <button type="choseBtn" class="button button-glow button-rounded button-highlight-flat button-small" onclick="showmodel('2')" id="vector">向量模型</button>
+    <button type="choseBtn" class="button button-glow button-rounded button-caution-flat button-small" onclick="showmodel('3')" id="BIM">BIM模型</button>
+    <button type="choseBtn" class="button button-glow button-rounded button-royal-flat button-small" onclick="showmodel('4')" id="MLE">MLE模型</button>
+</div>
+
+<script type="text/javascript">
+
+    function showmodel(id){
+        document.getElementById('1').style.display="none";
+        document.getElementById('2').style.display="none";
+        document.getElementById('3').style.display="none";
+        document.getElementById('4').style.display="none";
+        var traget=document.getElementById(id);
+        traget.style.display="";
+    }
+</script>
+
 <body><script src="/demos/googlegg.js"></script>
-<!--<form id="booleanForm" action="/Info_Retrieval/BooleanRetrievalServlet" method="post">-->
-<!--    <div class="search-wrapper">-->
-<!--        <div class="input-holder">-->
-<!--            <input type="text" class="search-input" name="boolSearchInput" placeholder="布尔模型搜索" />-->
-<!--            <button class="search-icon" onclick="searchToggle(this, event);" type="submit" id="booleanSearchBtn"><span></span></button>-->
-<!--        </div>-->
-<!--        <span class="close" onclick="searchToggle(this, event);"></span>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</form>-->
-<!--<form id="vectorForm" action="/Info_Retrieval/VectorRetrievalServlet" method="post">-->
-<!--    <div class="search-wrapper">-->
-<!--        <div class="input-holder">-->
-<!--            <input type="text" class="search-input" name="vectorSearchInput" placeholder="向量模型搜索" />-->
-<!--            <button class="search-icon" onclick="searchToggle(this, event);" type="submit" id="vectorSearchBtn"><span></span></button>-->
-<!--        </div>-->
-<!--        <span class="close" onclick="searchToggle(this, event);"></span>-->
-<!--    </div>-->
-<!--    </div>-->
-<!--</form>-->
-<!--<form id="BIMForm" action="/Info_Retrieval/BIMRetrievalServlet" method="post">-->
-<!--    <div class="search-wrapper">-->
-<!--        <div class="input-holder">-->
-<!--            <input type="text" class="search-input" name="BIMSearchInput" placeholder="BIM模型搜索" />-->
-<!--            <button class="search-icon" onclick="searchToggle(this, event);" type="submit" id="BIMSearchBtn"><span></span></button>-->
-<!--        </div>-->
-<!--        <span class="close" onclick="searchToggle(this, event);"></span>-->
-<!--    </div>-->
-<!--    </div>-->
-<!--</form>-->
+<form id="booleanForm" action="/Info_Retrieval/BooleanRetrievalServlet" method="post">
+    <div class="search-wrapper" id="1">
+        <div class="input-holder">
+            <input type="text" class="search-input" name="boolSearchInput" placeholder="布尔模型搜索" />
+            <button class="search-icon" onclick="searchToggle(this, event);" type="submit" id="booleanSearchBtn"><span></span></button>
+        </div>
+        <span class="close" onclick="searchToggle(this, event);"></span>
+        </div>
+    </div>
+</form>
+<form id="vectorForm" action="/Info_Retrieval/VectorRetrievalServlet" method="post">
+    <div class="search-wrapper" id="2" style="display: none">
+        <div class="input-holder">
+            <input type="text" class="search-input" name="vectorSearchInput" placeholder="向量模型搜索" />
+            <button class="search-icon" onclick="searchToggle(this, event);" type="submit" id="vectorSearchBtn"><span></span></button>
+        </div>
+        <span class="close" onclick="searchToggle(this, event);"></span>
+    </div>
+    </div>
+</form>
+<form id="BIMForm" action="/Info_Retrieval/BIMRetrievalServlet" method="post">
+    <div class="search-wrapper" id="3" style="display: none">
+        <div class="input-holder">
+            <input type="text" class="search-input" name="BIMSearchInput" placeholder="BIM模型搜索" />
+            <button class="search-icon" onclick="searchToggle(this, event);" type="submit" id="BIMSearchBtn"><span></span></button>
+        </div>
+        <span class="close" onclick="searchToggle(this, event);"></span>
+    </div>
+    </div>
+</form>
 <form id="MLEForm" action="/Info_Retrieval/MLERetrievalServlet" method="post">
-    <div class="search-wrapper">
+    <div class="search-wrapper" id="4" style="display: none">
         <div class="input-holder">
             <input type="text" class="search-input" name="MLESearchInput" placeholder="MLE模型搜索" />
             <button class="search-icon" onclick="searchToggle(this, event);" type="submit" id="MLESearchBtn"><span></span></button>

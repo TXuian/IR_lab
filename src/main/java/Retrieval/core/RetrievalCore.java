@@ -150,8 +150,13 @@ public class RetrievalCore {
 //            // prob. of occurrence in non-relevant documents for query
 //            termProb.setRi(countCiByTermInSet(term, unRelevantSet));
             // type 2
-            termProb.setPi((relevantSet.size()+0.5)/(V+1));
-            termProb.setRi((unRelevantSet.size()+0.5)/(docCollection.getDocMap().size()-V+1));
+//            termProb.setPi((relevantSet.size()+0.5)/(V+1));
+//            termProb.setRi((unRelevantSet.size()+0.5)/(docCollection.getDocMap().size()-V+1));
+            // type 3
+            termProb.setPi(0.5);
+            termProb.setRi((relevantSet.size()+0.5)/(docCollection.getDocMap().size()+0.5));
+//            termProb.setPi(unRelevantSet.size()+0.5);
+//            termProb.setRi(relevantSet.size()+0.5);
             termProbList.addTermProb(termProb);
         }
     }
@@ -316,11 +321,15 @@ public class RetrievalCore {
                 char termInDoc=docStruct.content.charAt(i);
                 BIMTermProb curTermProb=termProbList.getTermProbList().get(termInDoc);
                 if(querySet.contains(termInDoc)){
-                    docRSV+=Math.log(curTermProb.getPi()/
-                            curTermProb.getRi());
-                }else{
-                    docRSV+=Math.log((1-curTermProb.getPi())/(1-curTermProb.getRi()));
+                    docRSV+=Math.log(curTermProb.getPi()*
+                            (1-curTermProb.getRi())/(curTermProb.getRi()*(1-curTermProb.getPi())));
                 }
+//                if(querySet.contains(termInDoc)){
+//                    docRSV+=Math.log10(curTermProb.getPi()/
+//                            curTermProb.getRi());
+//                }else{
+//                    docRSV+=Math.log10((1-curTermProb.getPi())/(1-curTermProb.getRi()));
+//                }
             }
             docAns.setRSV(docRSV);
             ret.add(docAns);
